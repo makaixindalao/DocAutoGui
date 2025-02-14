@@ -1,37 +1,14 @@
 from xml.etree.ElementTree import tostring
 
-import pyautogui
+import pic
+import ocr
 import time
 import os
 import ai
 
+
 from pynput.keyboard import Controller
 keyboard = Controller()
-
-
-def find_and_click_image(image_path, wait_time=3):
-    """
-    查找屏幕上的图片并点击。
-
-    :param image_path: 图片文件的路径
-    :param wait_time: 等待时间，单位为秒
-    :return: 如果点击成功返回True，否则返回False
-    """
-
-    try:
-        # 查找屏幕上的图片位置
-        location = pyautogui.locateCenterOnScreen(image_path)
-        if location is not None:
-            # 点击图片中心位置
-            pyautogui.click(location)
-            print("点击成功！")
-            return True
-        else:
-            print("未找到图片。")
-            return False
-    except Exception as e:
-        print(f"发生错误: {e}")
-        return False
 
 
 def delay_txt():
@@ -70,12 +47,23 @@ def wait_for_image(image_path, timeout=60):
 
 
 def read_names(file_path):
+    """
+    从文件中读取姓名列表。
+
+    :param file_path: 文件路径
+    """
     with open(file_path, 'r', encoding='utf-8') as file:
         names = file.readlines()
     return [name.strip() for name in names]
 
 
 def remove_name(file_path, name_to_remove):
+    """
+    从文件中删除指定的姓名。
+
+    :param file_path: 文件路径
+    :param name_to_remove: 要删除的姓名
+    """
     with open(file_path, 'r', encoding='utf-8') as file:
         lines = file.readlines()
     with open(file_path, 'w', encoding='utf-8') as file:
@@ -85,6 +73,13 @@ def remove_name(file_path, name_to_remove):
 
 
 def input_text(x, y, txt):
+    """
+    在指定位置输入文本。
+
+    :param x: 输入框的 x 坐标
+    :param y: 输入框的 y 坐标
+    :param txt: 要输入的文本
+    """
     pyautogui.click(x, y)
     delay_txt()
     keyboard.type(txt)
@@ -132,7 +127,7 @@ def main():
         print("提交")
         wait_for_image(image_paths[2])
         time.sleep(1)
-        find_and_click_image(image_paths[2])
+        pic.find_and_click_image(image_paths[2])
         # pyautogui.click(813, 188)
 
         # 删除已处理的名字
