@@ -93,6 +93,7 @@ def main():
         current_dir, 'pic', f'{i}.png') for i in range(1, 5)]
     names_file = os.path.join(current_dir, 'names.txt')
     names = read_names(names_file)
+    bool faultFlag = False 
 
     coustem_y = 418
     coustem_text = "药疹"
@@ -100,18 +101,21 @@ def main():
     page = 2
 
     for i, name in enumerate(names):
-        if i >= coustem_num:
-            break
-        logging.info(f"运行第 {i + 1} 次")
-        if not wait_for_image(image_paths[0]):
+        if faultFlag:
             coustem_num += 1
             pyautogui.press('f5')
+            faultFlag = False
+        if i >= coustem_num:
+                break
+        
+        logging.info(f"运行第 {i + 1} 次")
+        if not wait_for_image(image_paths[0]):
+            faultFlag = True
             continue
 
         logging.info("点击大病历")
         if not click_and_wait(image_paths[1], 422, 329):
-            coustem_num += 1
-            pyautogui.press('f5')
+            faultFlag = True
             continue
 
         logging.info("点击疾病")
@@ -133,8 +137,7 @@ def main():
         logging.info(result)
 
         if not wait_for_image(image_paths[3]):
-            coustem_num += 1
-            pyautogui.press('f5')
+            faultFlag = True
             continue
 
         input_text(448, 837, coustem_text)
@@ -143,8 +146,7 @@ def main():
         pyautogui.click(580, 1388)
         logging.info("提交")
         if not wait_for_image(image_paths[2]):
-            coustem_num += 1
-            pyautogui.press('f5')
+            faultFlag = True
             continue
 
         time.sleep(1)
