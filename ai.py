@@ -18,7 +18,7 @@ def call_chatgpt_api(prompt):
                 "content": prompt,
             }
         ],
-        model="gpt-3.5-turbo",
+        model="gpt-4o-mini",
     )
     # 返回 ChatGPT 的回复内容
     return chat_completion.choices[0].message.content

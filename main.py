@@ -101,6 +101,8 @@ def main():
 
     for i, name in enumerate(names):
         print(f"运行第 {i + 1} 次")
+        if i >= 167:
+            break
         wait_for_image(image_paths[0])
 
         # 模拟点击
@@ -118,7 +120,7 @@ def main():
         input_text(451, 769, name)
         pyautogui.click(759, 776)
         print("生成病历中, 姓名为", name)
-        prompt = f"姓名为{name}生成一份随机病历, 诊断为皮疹，只包含主诉、现病史、既往史、个人史、家族史、体格检查、辅助检查、诊断，不要有性别、年龄、病历编号等其他信息"
+        prompt = f"姓名为{name}生成一份随机病历, 诊断为皮疹，只包含主诉、现病史、既往史、个人史、家族史、体格检查、辅助检查、诊断，不要有性别、年龄、病历编号等其他信息, 回复纯文本，不要用md"
         result = ai.call_chatgpt_api(prompt)
         print(result)
 
@@ -129,7 +131,9 @@ def main():
         pyautogui.click(580, 1388)
         print("提交")
         wait_for_image(image_paths[2])
-        pyautogui.click(813, 188)
+        time.sleep(1)
+        find_and_click_image(image_paths[2])
+        # pyautogui.click(813, 188)
 
         # 删除已处理的名字
         print("删除已处理的名字")
