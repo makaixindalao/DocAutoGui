@@ -94,44 +94,56 @@ def main():
     names_file = os.path.join(current_dir, 'names.txt')
     names = read_names(names_file)
 
-    for i, name in enumerate(names):
-        logging.info(f"运行第 {i + 1} 次")
-        if i >= 20:
-            break
+    coustem_y = 418
+    coustem_text = "药疹"
+    coustem_num = 7
+    page = 2
 
+    for i, name in enumerate(names):
+        if i >= coustem_num:
+            break
+        logging.info(f"运行第 {i + 1} 次")
         if not wait_for_image(image_paths[0]):
+            coustem_num += 1
             pyautogui.press('f5')
             continue
 
         logging.info("点击大病历")
         if not click_and_wait(image_paths[1], 422, 329):
+            coustem_num += 1
             pyautogui.press('f5')
             continue
 
         logging.info("点击疾病")
         pyautogui.click(440, 396)
         time.sleep(1)
-        logging.info("选择皮疹")
-        pyautogui.click(1000, 552)
+        if page > 1:
+            for _ in range(page - 1):
+                pyautogui.click(671, 649)
+                time.sleep(0.5)
+        logging.info(f"选择{coustem_text}")
+        pyautogui.click(1000, coustem_y)
         pyautogui.click(1040, 294)
 
         input_text(451, 769, name)
         pyautogui.click(759, 776)
         logging.info(f"生成病历中, 姓名为{name}")
-        prompt = f"姓名为{name}生成一份随机病历, 诊断为皮疹，只包含主诉、现病史、既往史、个人史、家族史、体格检查、辅助检查、诊断，不要有性别、年龄、病历编号等其他信息, 回复纯文本，不要用md"
+        prompt = f"姓名为{name}生成一份随机病历, 诊断为{coustem_text}，只包含主诉、现病史、既往史、个人史、家族史、体格检查、辅助检查、诊断，不要有性别、年龄、病历编号等其他信息, 回复纯文本, 不要用md"
         result = ai.call_chatgpt_api(prompt)
         logging.info(result)
 
         if not wait_for_image(image_paths[3]):
+            coustem_num += 1
             pyautogui.press('f5')
             continue
 
-        input_text(448, 837, "皮疹")
+        input_text(448, 837, coustem_text)
         input_text(656, 967, result)
 
         pyautogui.click(580, 1388)
         logging.info("提交")
         if not wait_for_image(image_paths[2]):
+            coustem_num += 1
             pyautogui.press('f5')
             continue
 
