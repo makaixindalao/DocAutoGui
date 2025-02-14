@@ -93,7 +93,7 @@ def main():
         current_dir, 'pic', f'{i}.png') for i in range(1, 5)]
     names_file = os.path.join(current_dir, 'names.txt')
     names = read_names(names_file)
-    bool faultFlag = False 
+    faultFlag = False 
 
     coustem_y = 418
     coustem_text = "药疹"
