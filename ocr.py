@@ -1,7 +1,10 @@
 import ddddocr
 import pic
+import os
 
 # 创建 OCR 对象
+ocr = ddddocr.DdddOcr()
+
 def ocr_from_image(image_path):
     """
     从给定的图像路径进行 OCR 识别。
@@ -9,9 +12,6 @@ def ocr_from_image(image_path):
     :param image_path: 图像文件的路径
     :return: 识别到的文本
     """
-    # 创建 OCR 对象
-    ocr = ddddocr.DdddOcr()
-
     # 读取图像文件
     with open(image_path, 'rb') as f:
         img_bytes = f.read()
@@ -20,7 +20,6 @@ def ocr_from_image(image_path):
     result = ocr.classification(img_bytes)
 
     return result
-
 
 def ocr_from_screenshot(region=None):
     """

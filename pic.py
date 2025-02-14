@@ -1,4 +1,5 @@
-ipmort pyautogui
+import pyautogui
+import time
 
 def find_and_click_image(image_path, wait_time=3, retries=10, interval=0.5):
     """
@@ -10,7 +11,6 @@ def find_and_click_image(image_path, wait_time=3, retries=10, interval=0.5):
     :param interval: 每次重试之间的间隔时间，单位为秒
     :return: 如果点击成功返回True，否则返回False
     """
-
     for attempt in range(retries):
         try:
             # 查找屏幕上的图片位置
