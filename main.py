@@ -1,68 +1,54 @@
-from xml.etree.ElementTree import tostring
-
-import pic
-import ocr
+import pyautogui
 import time
 import os
 import ai
-
-
+import pic
+import logging
 from pynput.keyboard import Controller
-keyboard = Controller()
 
+# 设置日志记录
+logging.basicConfig(filename='app.log', filemode='a', format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
+
+keyboard = Controller()
 
 def delay_txt():
     """
     删除文本框中的内容。
     """
-    # 鼠标左键点击三下
     for _ in range(3):
         pyautogui.click()
-        time.sleep(0.1)  # 每次点击之间的间隔
-
-    # 按下删除键
+        time.sleep(0.1)
     pyautogui.press('delete')
-
 
 def wait_for_image(image_path, timeout=60):
     """
     等待直到屏幕上出现指定的图片。
     """
-
     start_time = time.time()
     while True:
         try:
-            # 查找图像
             location = pyautogui.locateOnScreen(image_path)
             if location is not None:
                 return location
         except pyautogui.ImageNotFoundException:
             pass
         if time.time() - start_time > timeout:
-            print("超时未找到图像")
+            logging.warning(f"超时未找到图像: {image_path}")
             return None
-        # 等待一段时间再重试
-        print("等待页面加载...")
+        logging.info("等待页面加载...")
         time.sleep(1)
-
 
 def read_names(file_path):
     """
     从文件中读取姓名列表。
-
-    :param file_path: 文件路径
     """
     with open(file_path, 'r', encoding='utf-8') as file:
         names = file.readlines()
     return [name.strip() for name in names]
 
-
 def remove_name(file_path, name_to_remove):
     """
     从文件中删除指定的姓名。
-
-    :param file_path: 文件路径
-    :param name_to_remove: 要删除的姓名
     """
     with open(file_path, 'r', encoding='utf-8') as file:
         lines = file.readlines()
@@ -71,69 +57,70 @@ def remove_name(file_path, name_to_remove):
             if line.strip() != name_to_remove:
                 file.write(line)
 
-
 def input_text(x, y, txt):
     """
     在指定位置输入文本。
-
-    :param x: 输入框的 x 坐标
-    :param y: 输入框的 y 坐标
-    :param txt: 要输入的文本
     """
     pyautogui.click(x, y)
     delay_txt()
     keyboard.type(txt)
     time.sleep(0.5)
 
+def click_and_wait(image_path, x, y, timeout=60):
+    """
+    点击指定位置并等待图像出现。
+    """
+    pyautogui.click(x, y)
+    return wait_for_image(image_path, timeout)
 
 def main():
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    image_paths = [os.path.join(
-        current_dir, 'pic', f'{i}.png') for i in range(1, 5)]
-
+    image_paths = [os.path.join(current_dir, 'pic', f'{i}.png') for i in range(1, 5)]
     names_file = os.path.join(current_dir, 'names.txt')
     names = read_names(names_file)
 
     for i, name in enumerate(names):
-        print(f"运行第 {i + 1} 次")
+        logging.info(f"运行第 {i + 1} 次")
         if i >= 167:
             break
-        wait_for_image(image_paths[0])
 
-        # 模拟点击
-        print("点击大病历")
-        pyautogui.click(422, 329)
-        wait_for_image(image_paths[1])
-        print("点击疾病")
+        if not wait_for_image(image_paths[0]):
+            continue
+
+        logging.info("点击大病历")
+        if not click_and_wait(image_paths[1], 422, 329):
+            continue
+
+        logging.info("点击疾病")
         pyautogui.click(440, 396)
         time.sleep(1)
-        print("选择皮疹")
+        logging.info("选择皮疹")
         pyautogui.click(1000, 552)
         pyautogui.click(1040, 294)
 
-        # 输入姓名并生成病历
         input_text(451, 769, name)
         pyautogui.click(759, 776)
-        print("生成病历中, 姓名为", name)
+        logging.info(f"生成病历中, 姓名为{name}")
         prompt = f"姓名为{name}生成一份随机病历, 诊断为皮疹，只包含主诉、现病史、既往史、个人史、家族史、体格检查、辅助检查、诊断，不要有性别、年龄、病历编号等其他信息, 回复纯文本，不要用md"
         result = ai.call_chatgpt_api(prompt)
-        print(result)
+        logging.info(result)
 
-        wait_for_image(image_paths[3])
+        if not wait_for_image(image_paths[3]):
+            continue
+
         input_text(448, 837, "皮疹")
         input_text(656, 967, result)
 
         pyautogui.click(580, 1388)
-        print("提交")
-        wait_for_image(image_paths[2])
+        logging.info("提交")
+        if not wait_for_image(image_paths[2]):
+            continue
+
         time.sleep(1)
         pic.find_and_click_image(image_paths[2])
-        # pyautogui.click(813, 188)
 
-        # 删除已处理的名字
-        print("删除已处理的名字")
+        logging.info("删除已处理的名字")
         remove_name(names_file, name)
-
 
 if __name__ == "__main__":
     main()
