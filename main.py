@@ -152,6 +152,7 @@ def main():
 
         logging.info("删除已处理的名字")
         remove_name(names_file, name)
+    logging.info("任务完成")
 
 
 if __name__ == "__main__":
