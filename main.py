@@ -35,7 +35,7 @@ def wait_for_image(image_path, timeout=60):
         if time.time() - start_time > timeout:
             logging.warning(f"超时未找到图像: {image_path}")
             return None
-        logging.info("等待页面加载...")
+        logging.info("页面加载中...")
         time.sleep(1)
 
 def read_names(file_path):
@@ -85,10 +85,12 @@ def main():
             break
 
         if not wait_for_image(image_paths[0]):
+            pyautogui.press('f5')
             continue
 
         logging.info("点击大病历")
         if not click_and_wait(image_paths[1], 422, 329):
+            pyautogui.press('f5')
             continue
 
         logging.info("点击疾病")
@@ -106,6 +108,7 @@ def main():
         logging.info(result)
 
         if not wait_for_image(image_paths[3]):
+            pyautogui.press('f5')
             continue
 
         input_text(448, 837, "皮疹")
@@ -114,6 +117,7 @@ def main():
         pyautogui.click(580, 1388)
         logging.info("提交")
         if not wait_for_image(image_paths[2]):
+            pyautogui.press('f5')
             continue
 
         time.sleep(1)
