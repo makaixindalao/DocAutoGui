@@ -1,3 +1,5 @@
 # 默认忽略的文件
-names.txt
-key.txt
+__pycache__
+*.txt
+*.log
+*.pyc

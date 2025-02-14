@@ -18,6 +18,7 @@ logging.basicConfig(
 
 keyboard = Controller()
 
+
 def delay_txt():
     """
     删除文本框中的内容。
@@ -26,6 +27,7 @@ def delay_txt():
         pyautogui.click()
         time.sleep(0.1)
     pyautogui.press('delete')
+
 
 def wait_for_image(image_path, timeout=60):
     """
@@ -45,6 +47,7 @@ def wait_for_image(image_path, timeout=60):
         logging.info("页面加载中...")
         time.sleep(1)
 
+
 def read_names(file_path):
     """
     从文件中读取姓名列表。
@@ -52,6 +55,7 @@ def read_names(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         names = file.readlines()
     return [name.strip() for name in names]
+
 
 def remove_name(file_path, name_to_remove):
     """
@@ -64,6 +68,7 @@ def remove_name(file_path, name_to_remove):
             if line.strip() != name_to_remove:
                 file.write(line)
 
+
 def input_text(x, y, txt):
     """
     在指定位置输入文本。
@@ -73,6 +78,7 @@ def input_text(x, y, txt):
     keyboard.type(txt)
     time.sleep(0.5)
 
+
 def click_and_wait(image_path, x, y, timeout=60):
     """
     点击指定位置并等待图像出现。
@@ -80,15 +86,17 @@ def click_and_wait(image_path, x, y, timeout=60):
     pyautogui.click(x, y)
     return wait_for_image(image_path, timeout)
 
+
 def main():
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    image_paths = [os.path.join(current_dir, 'pic', f'{i}.png') for i in range(1, 5)]
+    image_paths = [os.path.join(
+        current_dir, 'pic', f'{i}.png') for i in range(1, 5)]
     names_file = os.path.join(current_dir, 'names.txt')
     names = read_names(names_file)
 
     for i, name in enumerate(names):
         logging.info(f"运行第 {i + 1} 次")
-        if i >= 167:
+        if i >= 20:
             break
 
         if not wait_for_image(image_paths[0]):
@@ -132,6 +140,7 @@ def main():
 
         logging.info("删除已处理的名字")
         remove_name(names_file, name)
+
 
 if __name__ == "__main__":
     main()
