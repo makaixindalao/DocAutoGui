@@ -7,7 +7,14 @@ import logging
 from pynput.keyboard import Controller
 
 # 设置日志记录
-logging.basicConfig(filename='app.log', filemode='a', format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('app.log', mode='a'),
+        logging.StreamHandler()
+    ]
+)
 
 keyboard = Controller()
 
