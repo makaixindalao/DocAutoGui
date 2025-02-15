@@ -1,9 +1,22 @@
-import ddddocr
 import pic
 import os
+import re
+from cnocr import CnOcr
 
-# 创建 OCR 对象
-ocr = ddddocr.DdddOcr()
+# 提取中文和数字，返回数字数组
+def extract_chinese_and_numbers(ocr_data):
+    extracted_numbers = []  # 用于存储提取的数字
+
+    for item in ocr_data:
+        text = re.split(r'（', item['text'])[0]  # 去掉“（”及之后的字符
+        # 使用正则表达式提取中文和数字
+        matches = re.findall(r'[\u4e00-\u9fa5]+|[0-9]+', text)
+
+        for match in matches:
+            if match.isdigit():  # 检查是否为数字
+                extracted_numbers.append(match)  # 添加到数字数组
+
+    return extracted_numbers  # 返回中文文本和数字数组
 
 def ocr_from_image(image_path):
     """
@@ -12,14 +25,14 @@ def ocr_from_image(image_path):
     :param image_path: 图像文件的路径
     :return: 识别到的文本
     """
-    # 读取图像文件
-    with open(image_path, 'rb') as f:
-        img_bytes = f.read()
+    ocr = CnOcr()
+    result = ocr.ocr(image_path)
 
-    # 进行 OCR 识别
-    result = ocr.classification(img_bytes)
+    result = extract_chinese_and_numbers(result)
+    print(result)
 
     return result
+
 
 def ocr_from_screenshot(region=None):
     """
