@@ -27,6 +27,7 @@ items = ["扁平苔藓", "剥脱性皮炎", "虫咬皮炎", "痤疮及酒渣鼻"
 opreateItems = ["各类激光操作", "各种治疗手段", "了解复杂皮肤外科手术基本流程和适应证", "书写完整住院病历", "掌握皮肤病治疗的换药技术", "掌握梭形切口和单纯闭合基本技术","紫外线光疗（包括窄波 UVB 及黑光治疗）"]
 docItems = ["斑贴试验", "病理阅片（包括皮炎湿疹、银屑病、多形红斑、扁平苔藓、红斑狼疮、血管炎、大疱性皮肤病、常见皮肤肿瘤等）", "疥螨、毛囊虫镜检", "皮肤活检操作", "浅部真菌病病原体的直接镜检"]
 
+
 def generate_random_date():
     start_date = datetime.strptime("2023-10-10", '%Y-%m-%d')
     end_date = datetime.strptime("2024-10-10", '%Y-%m-%d')
@@ -200,11 +201,42 @@ def write_page4(name, postion):
 
     return True
 
+# 门诊操作
+def write_page5(name, postion):
+    print("输入时间")
+    input_text(352, 740, generate_random_date())
+    pyautogui.click(419, 700)
+
+    print("操作名称")
+    task = random.choice(items)
+    input_text(361, 775, task)
+
+    print("输入病历号")
+    input_text(333, 805, str(random.randint(1000000, 9999999)))
+
+    print("输入病人信息")
+    input_text(356, 838, name)
+
+    print("输入诊断")
+    input_text(361, 870, task)
+
+    print(f"生成诊断中, 姓名为{name}")
+    prompt = f"生成一份随机门诊操作, 主要诊断为为{task}，不要有性别、年龄、病历编号，记录人,记录时间等其他信息, 回复纯文本, 不要用md"
+    result = ai.call_chatgpt_api(prompt)
+    print(result)
+
+    print("输入生成内容")
+    input_text(332, 950, result)
+
+    return True
+
 #疾病位置
 position1 = (314, 365)
 position3 = (310, 330)
 #医技报告
 position4 = (349, 333)
+#门诊操作
+position5 = (313, 329)
 
 def main():
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -213,7 +245,7 @@ def main():
     names = read_names(names_file)
     faultFlag = False
     page_max = 0
-    task = 4
+    task = 5
 
     for i, name in enumerate(names):
         if faultFlag:
@@ -240,6 +272,9 @@ def main():
         elif task == 4:
             firstImage = "pic/docreport.png"
             disease = position4
+        elif task == 5:
+            firstImage = "pic/m1.png"
+            disease = position5
         if not pic.find_and_click_image(firstImage, retries=60):
             faultFlag = True
             continue
@@ -265,6 +300,8 @@ def main():
             ret = write_page3(name, position)
         elif task == 4:
             ret = write_page4(name, position)
+        elif task == 5:
+            ret = write_page5(name, position)
 
         if not ret:
             faultFlag = True
