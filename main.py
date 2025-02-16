@@ -140,7 +140,7 @@ def compare_arrays(page_max):
                     return False, i, page_max
             except:
                 print("识别错误，重新识别")
-                return True, i, page_max
+                return False, i, page_max
         pyautogui.click(540, 613)
         time.sleep(1)
     
@@ -196,31 +196,7 @@ def main():
 
         pyautogui.click(908, 265)
 
-        # 时间
-        print("输入时间")
-        input_text(352, 740, generate_random_date())
-        pyautogui.click(419, 700)
-
-        #病历号
-        print("输入病历号")
-        input_text(333, 769, str(random.randint(1000000, 9999999)))
-
-        #信息
-        print("输入病人信息")
-        input_text(356, 806, name)
-
-        #诊断
-        print("输入诊断")
-        task = items[random.randint(0, 6)]
-        input_text(361, 840, task)
-        
-        print(f"生成诊断中, 姓名为{name}")
-        prompt = f"姓名为{name}生成一份随机诊治, 诊断为{task}，不要有性别、年龄、病历编号等其他信息, 回复纯文本, 不要用md"
-        result = ai.call_chatgpt_api(prompt)
-        print(result)
-
-        print("输入生成内容")
-        input_text(332, 950, result)
+        write_page2(name)
 
         print("开始提交")
         pyautogui.click(225, 100)
@@ -245,6 +221,37 @@ def main():
         
     print("任务完成")
 
+
+def write_page2(name):
+    """
+    填写第二页的内容。
+    """
+    # 选择日期
+    # 时间
+    print("输入时间")
+    input_text(352, 740, generate_random_date())
+    pyautogui.click(419, 700)
+
+    #病历号
+    print("输入病历号")
+    input_text(333, 769, str(random.randint(1000000, 9999999)))
+
+    #信息
+    print("输入病人信息")
+    input_text(356, 806, name)
+
+    #诊断
+    print("输入诊断")
+    task = items[random.randint(0, 6)]
+    input_text(361, 840, task)
+
+    print(f"生成诊断中, 姓名为{name}")
+    prompt = f"姓名为{name}生成一份随机诊治, 诊断为{task}，不要有性别、年龄、病历编号等其他信息, 回复纯文本, 不要用md"
+    result = ai.call_chatgpt_api(prompt)
+    print(result)
+
+    print("输入生成内容")
+    input_text(332, 950, result)
 
 if __name__ == "__main__":
     main()
