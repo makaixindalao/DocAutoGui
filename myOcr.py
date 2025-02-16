@@ -1,7 +1,7 @@
+import time
 import pic
 import os
 import re
-from cnocr import CnOcr
 import paddlehub as hub
 import cv2
 
@@ -97,14 +97,14 @@ def get_line_str(region):
     screenshot_image.save(temp_image_path)
 
     # 进行 OCR 识别
-    ocr = CnOcr()
-    data = ocr.ocr(temp_image_path)
+    ocr = hub.Module(name="ch_pp-ocrv3", enable_mkldnn=True)       # mkldnn加速仅在CPU下有效
+    result = ocr.recognize_text(images=[cv2.imread(temp_image_path)])
     
-    texts = [item['text'] for item in data]
+    texts = [item['text'] for item in result[0]['data']]
+    # texts = [item['text'] for item in data]
 
     # 拼装成字符串
     result = ''.join(texts)
-    print("=====")
     print(result)
     # 删除临时文件
     # os.remove(temp_image_path)

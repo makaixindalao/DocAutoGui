@@ -24,8 +24,8 @@ logging.basicConfig(
 )
 
 
-click_postion = [417, 439, 464, 485, 507, 529, 553, 575, 592,620]
-
+#click_postion = [377, 400, 422, 445, 469, 497, 515, 540, 564, 587]
+click_postion = [386, 406, 426, 451, 475, 495, 519, 542, 564, 585]
 
 def generate_random_date():
     start_date_str = "2023-10-10"
@@ -118,7 +118,7 @@ def compare_arrays(page_max):
     arr2 = None
 
     if page_max == 0:
-        result = myOcr.get_line_str((480, 630, 40, 40))
+        result = myOcr.get_line_str((485, 606, 40, 30))
         print(result[1])
         page_max = int(result[1])
         print(f"总页数为{page_max}")
@@ -126,8 +126,8 @@ def compare_arrays(page_max):
 
     for m in range(page_max):
         for _ in range(10):
-            arr1 = myOcr.ocr_from_screenshot((580, 410, 40, 222))
-            arr2 = myOcr.ocr_from_screenshot((755, 410, 40, 222))
+            arr1 = myOcr.ocr_from_screenshot((580, 376, 40, 222))
+            arr2 = myOcr.ocr_from_screenshot((755, 376, 40, 222))
 
             if len(arr1) is len(arr2):            
                 break
@@ -141,7 +141,8 @@ def compare_arrays(page_max):
             except:
                 print("识别错误，重新识别")
                 return True, i, page_max
-        pyautogui.click(537, 649)
+        pyautogui.click(540, 613)
+        time.sleep(1)
     
     return True, 0, page_max
 
@@ -156,6 +157,9 @@ def main():
     faultFlag = False
 
     page_max = 0
+    #result = myOcr.get_line_str((485, 606, 40, 30))
+    # myOcr.ocr_from_screenshot((580, 430, 40, 222))
+    #exit()
     
     for i, name in enumerate(names):
         if faultFlag:
@@ -176,38 +180,39 @@ def main():
             continue
 
         print("点击疾病")
-        time.sleep(2)
-        if not pic.find_and_click_image(image_paths[11]):
-            faultFlag = True
-            continue
+        time.sleep(3)
+        #if not pic.find_and_click_image(image_paths[11]):
+        #   faultFlag = True
+        #  continue
+        pyautogui.click(314, 332)
 
-        time.sleep(2)
+        time.sleep(5)
 
         print("寻找未填写完成的项目")
         ret, postion, page_max = compare_arrays(page_max)
         if ret:
             break
-        pyautogui.click(865, click_postion[postion])
+        pyautogui.click(872, click_postion[postion])
 
-        pyautogui.click(901, 296)
+        pyautogui.click(908, 265)
 
         # 时间
         print("输入时间")
-        input_text(343, 771, generate_random_date())
-        pyautogui.click(534, 715)
+        input_text(352, 740, generate_random_date())
+        pyautogui.click(419, 700)
 
         #病历号
         print("输入病历号")
-        input_text(311, 808, str(random.randint(1000000, 9999999)))
+        input_text(333, 769, str(random.randint(1000000, 9999999)))
 
         #信息
         print("输入病人信息")
-        input_text(384, 839, name)
+        input_text(356, 806, name)
 
         #诊断
         print("输入诊断")
         task = items[random.randint(0, 6)]
-        input_text(343, 872, task)
+        input_text(361, 840, task)
         
         print(f"生成诊断中, 姓名为{name}")
         prompt = f"姓名为{name}生成一份随机诊治, 诊断为{task}，不要有性别、年龄、病历编号等其他信息, 回复纯文本, 不要用md"
@@ -215,26 +220,24 @@ def main():
         print(result)
 
         print("输入生成内容")
-        input_text(650, 1000, result)
+        input_text(332, 950, result)
 
         print("开始提交")
-        pyautogui.click(225, 131)
-        pyautogui.moveTo(225, 131)
+        pyautogui.click(225, 100)
+        pyautogui.moveTo(225, 100)
         pyautogui.scroll(-1000)
 
-        time.sleep(2)
-        # if not pic.find_and_click_image("pic/commit.png"):
-        pyautogui.click(450, 901)
+        time.sleep(4)
+        if not pic.find_and_click_image("pic/commit.png"):
+            pyautogui.click(450, 916)
 
-        time.sleep(1)
+        time.sleep(4)
 
         print("点击确认")
         if not pic.find_and_click_image(image_paths[2]):
-            faultFlag = True
-            continue
+            pyautogui.click(680, 190)
 
         time.sleep(3)
-
         pyautogui.click()
 
         print("删除已处理的名字")
