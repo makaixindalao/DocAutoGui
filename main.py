@@ -24,6 +24,7 @@ logging.basicConfig(
 click_positions = [386, 406, 426, 451, 475, 495, 519, 542, 564, 585]
 keyboard = Controller()
 items = ["扁平苔藓", "剥脱性皮炎", "虫咬皮炎", "痤疮及酒渣鼻", "大疱性皮肤病", "代谢性皮肤病", "带状疱疹"]
+opreateItems = ["各类激光操作", "各种治疗手段", "了解复杂皮肤外科手术基本流程和适应证", "书写完整住院病历", "掌握皮肤病治疗的换药技术", "掌握梭形切口和单纯闭合基本技术","紫外线光疗（包括窄波 UVB 及黑光治疗）"]
 
 def generate_random_date():
     start_date = datetime.strptime("2023-10-10", '%Y-%m-%d')
@@ -99,6 +100,7 @@ def compare_arrays(page_max):
 
     return True, 0, page_max
 
+# 大病历
 def write_page1(name):
     print("输入姓名")
     input_text(316, 739, name)
@@ -119,6 +121,7 @@ def write_page1(name):
 
     return True
 
+# 诊断
 def write_page2(name):
     print("输入时间")
     input_text(352, 740, generate_random_date())
@@ -144,8 +147,35 @@ def write_page2(name):
 
     return True
 
+# 操作记录
+def write_page3(name, position):
+    print("输入姓名")
+    input_text(316, 707, name)
+
+    if not pic.find_and_click_image("pic/find.png"):
+        return False
+    
+    wait_for_image("pic/waitOperate.png")
+
+    print("输入时间")
+    input_text(340, 773, generate_random_date())
+    pyautogui.click(345, 672)
+
+    task = opreateItems[position]
+    input_text(340, 800, task)
+
+    print(f"生成操作中, 姓名为{name}")
+    prompt = f"生成一份随机操作步骤, 操作名称为{task}，不要有性别、年龄、病历编号，记录人,记录时间等其他信息, 回复纯文本, 不要用md"
+    result = ai.call_chatgpt_api(prompt)
+    print(result)
+    print("输入生成内容")
+    input_text(361, 878, result)
+
+    return True
+
 #疾病位置
 position1 = (314, 365)
+position3 = (310, 330)
 
 def main():
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -154,7 +184,7 @@ def main():
     names = read_names(names_file)
     faultFlag = False
     page_max = 0
-    task = 1
+    task = 3
 
     for i, name in enumerate(names):
         if faultFlag:
@@ -167,17 +197,24 @@ def main():
         print(f"运行第 {i + 1} 次")
         print("点击大类")
 
+        disease = None
+
         if task == 1:
             firstImage = "pic/1.png"
+            disease = position1
         elif task == 2:
             firstImage = "pic/11.png"
+            disease = position1
+        elif task == 3:
+            firstImage = "pic/operate.png"
+            disease = position3
         if not pic.find_and_click_image(firstImage, retries=60):
             faultFlag = True
             continue
 
         print("点击疾病")
         time.sleep(3)
-        pyautogui.click(position1)
+        pyautogui.click(disease)
         time.sleep(5)
 
         print("寻找未填写完成的项目")
@@ -192,6 +229,8 @@ def main():
             ret = write_page1(name)
         elif task == 2:
             ret = write_page2(name)
+        elif task == 3:
+            ret = write_page3(name, position)
 
         if not ret:
             faultFlag = True
