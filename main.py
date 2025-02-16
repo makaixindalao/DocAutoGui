@@ -6,6 +6,8 @@ import pic
 import random
 import logging
 import myOcr
+import paddle
+
 from pynput.keyboard import Controller
 
 from datetime import datetime, timedelta
@@ -111,23 +113,37 @@ def click_and_wait(image_path, x, y, timeout=60):
     return wait_for_image(image_path, timeout)
 
 
-def compare_arrays():
+def compare_arrays(page_max):
     arr1 = None
     arr2 = None
-    for _ in range(10):
-        arr1 = myOcr.ocr_from_screenshot((720, 410, 28, 222))
-        arr2 = myOcr.ocr_from_screenshot((897, 410, 28, 222))
 
-        if len(arr1) is len(arr2):            
-            break
-        print("长度不一致, 重新识别")
+    if page_max == 0:
+        result = myOcr.get_line_str((480, 630, 40, 40))
+        print(result[1])
+        page_max = int(result[1])
+        print(f"总页数为{page_max}")
+        #page_max = int(myOcr.ocr_from_screenshot((495, 641, 15, 15)))
+
+    for m in range(page_max):
+        for _ in range(10):
+            arr1 = myOcr.ocr_from_screenshot((580, 410, 40, 222))
+            arr2 = myOcr.ocr_from_screenshot((755, 410, 40, 222))
+
+            if len(arr1) is len(arr2):            
+                break
+            print("长度不一致, 重新识别")
+        
+        for i in range(len(arr1)):
+            try:
+                if int(arr1[i]) > int(arr2[i]):
+                    print(f"未完成位置：{i}, 需要{arr1[i]}, 已提交{arr2[i]}")
+                    return False, i, page_max
+            except:
+                print("识别错误，重新识别")
+                return True, i, page_max
+        pyautogui.click(537, 649)
     
-    for i in range(len(arr1)):
-        if int(arr1[i]) > int(arr2[i]):
-            print(f"未完成位置：{i}, 需要{arr1[i]}, 已提交{arr2[i]}")
-            return False, i
-            
-    return True, 0
+    return True, 0, page_max
 
 items = ["扁平苔藓", "剥脱性皮炎", "虫咬皮炎", "痤疮及酒渣鼻", "大疱性皮肤病", "代谢性皮肤病", "带状疱疹"]
 
@@ -138,32 +154,20 @@ def main():
     names_file = os.path.join(current_dir, 'names.txt')
     names = read_names(names_file)
     faultFlag = False
-    
-    page = 1
-    page_max = 5
 
-    # result = myOcr.ocr_from_image("pic/temp.png")
-    # result2 = myOcr.ocr_from_image("pic/temp2.png")
+    page_max = 0
     
-    # result_lines  = extract_chinese_and_numbers(result)
-    # print(result_lines)
-    # print(pic.find_images_on_screen(image_paths[12]))
-
     for i, name in enumerate(names):
         if faultFlag:
             pyautogui.press('f5')   
-            pic.wait_for_image("pic/wait.png") 
+            time.sleep(15)
             pic.find_and_click_image("pic/start.png")
             pic.find_and_click_image("pic/write.png")
-            # time.sleep(30)        
-            # pyautogui.click(213, 464)   
-            # time.sleep(0.3)         
-            # pyautogui.click(220, 636)
             faultFlag = False
 
         print(f"运行第 {i + 1} 次")
         print("点击大类")
-        if not pic.find_and_click_image(image_paths[10]):
+        if not pic.find_and_click_image(image_paths[10], retries = 60):
             faultFlag = True
             continue
 
@@ -172,47 +176,38 @@ def main():
             continue
 
         print("点击疾病")
+        time.sleep(2)
         if not pic.find_and_click_image(image_paths[11]):
             faultFlag = True
             continue
 
-        time.sleep(1)
-        if page > 1:
-            for _ in range(page - 1):
-                pyautogui.click(671, 649)
-                time.sleep(0.5)
+        time.sleep(2)
 
         print("寻找未填写完成的项目")
-        ret, postion = compare_arrays()
+        ret, postion, page_max = compare_arrays(page_max)
         if ret:
-            if page <= page_max:
-                page += 1
-                faultFlag = True
-                continue
-            else:
-                break
-        pyautogui.click(1000, click_postion[postion])
+            break
+        pyautogui.click(865, click_postion[postion])
 
-        pyautogui.click(1038, 296)
+        pyautogui.click(901, 296)
 
         # 时间
         print("输入时间")
-        input_text(488, 767, generate_random_date())
-        pyautogui.click(519, 721)
+        input_text(343, 771, generate_random_date())
+        pyautogui.click(534, 715)
 
         #病历号
         print("输入病历号")
-        input_text(463, 804, str(random.randint(1000000, 9999999)))
+        input_text(311, 808, str(random.randint(1000000, 9999999)))
 
         #信息
         print("输入病人信息")
-        input_text(483, 839, name)
+        input_text(384, 839, name)
 
         #诊断
         print("输入诊断")
         task = items[random.randint(0, 6)]
-        input_text(439, 872, task)
-
+        input_text(343, 872, task)
         
         print(f"生成诊断中, 姓名为{name}")
         prompt = f"姓名为{name}生成一份随机诊治, 诊断为{task}，不要有性别、年龄、病历编号等其他信息, 回复纯文本, 不要用md"
@@ -223,14 +218,24 @@ def main():
         input_text(650, 1000, result)
 
         print("开始提交")
-        pyautogui.click(1062, 531)
+        pyautogui.click(225, 131)
+        pyautogui.moveTo(225, 131)
         pyautogui.scroll(-1000)
 
-        time.sleep(0.5)
-        if not pic.find_and_click_image("pic/commit.png"):
-            pyautogui.click(580, 1278)
+        time.sleep(2)
+        # if not pic.find_and_click_image("pic/commit.png"):
+        pyautogui.click(450, 901)
 
-        pic.find_and_click_image(image_paths[2])
+        time.sleep(1)
+
+        print("点击确认")
+        if not pic.find_and_click_image(image_paths[2]):
+            faultFlag = True
+            continue
+
+        time.sleep(3)
+
+        pyautogui.click()
 
         print("删除已处理的名字")
         remove_name(names_file, name)

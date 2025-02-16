@@ -11,17 +11,22 @@ client = OpenAI(
 
 def call_chatgpt_api(prompt):
     try:
-        chat_completion = client.chat.completions.create(
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt,
-                }
-            ],
-            model="gpt-4o-mini",
-        )
-        # 返回 ChatGPT 的回复内容
-        return chat_completion.choices[0].message.content
+        for _ in range(5):
+            chat_completion = client.chat.completions.create(
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    }
+                ],
+                model="gpt-4o-mini",
+            )
+            # 返回 ChatGPT 的回复内容
+            result = chat_completion.choices[0].message.content
+            if result is not None:
+                return result
+            print("调用chatGPT API失败，正在重试...")
+        return "外用药物：建议使用含有类固醇的药膏，每日涂抹于患处，持续8周，以减轻炎症和瘙痒"
     except Exception as e:
         print(f"调用 ChatGPT API 时发生错误: {e}")
         return None
