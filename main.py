@@ -99,6 +99,26 @@ def compare_arrays(page_max):
 
     return True, 0, page_max
 
+def write_page1(name):
+    print("输入姓名")
+    input_text(316, 739, name)
+
+    if not pic.find_and_click_image("pic/find.png"):
+        return False
+    
+    wait_for_image("pic/find_result.png")
+
+    task = random.choice(items)
+    print(f"生成诊断中, 姓名为{name}")
+    prompt = f"姓名为{name}生成一份随机病例, 诊断为{task}，不要有性别、年龄、病历编号等其他信息, 回复纯文本, 不要用md"
+    result = ai.call_chatgpt_api(prompt)
+    print(result)
+
+    print("输入生成内容")
+    input_text(445, 888, result)
+
+    return True
+
 def write_page2(name):
     print("输入时间")
     input_text(352, 740, generate_random_date())
@@ -122,6 +142,11 @@ def write_page2(name):
     print("输入生成内容")
     input_text(332, 950, result)
 
+    return True
+
+#疾病位置
+position1 = (314, 365)
+
 def main():
     current_dir = os.path.dirname(os.path.abspath(__file__))
     image_paths = [os.path.join(current_dir, 'pic', f'{i}.png') for i in range(1, 20)]
@@ -129,6 +154,7 @@ def main():
     names = read_names(names_file)
     faultFlag = False
     page_max = 0
+    task = 1
 
     for i, name in enumerate(names):
         if faultFlag:
@@ -140,17 +166,18 @@ def main():
 
         print(f"运行第 {i + 1} 次")
         print("点击大类")
-        if not pic.find_and_click_image(image_paths[10], retries=60):
-            faultFlag = True
-            continue
 
-        if not pic.find_and_click_image(image_paths[10]):
+        if task == 1:
+            firstImage = "pic/1.png"
+        elif task == 2:
+            firstImage = "pic/11.png"
+        if not pic.find_and_click_image(firstImage, retries=60):
             faultFlag = True
             continue
 
         print("点击疾病")
         time.sleep(3)
-        pyautogui.click(314, 332)
+        pyautogui.click(position1)
         time.sleep(5)
 
         print("寻找未填写完成的项目")
@@ -160,7 +187,15 @@ def main():
         pyautogui.click(872, click_positions[position])
         pyautogui.click(908, 265)
 
-        write_page2(name)
+        ret = False
+        if task == 1:
+            ret = write_page1(name)
+        elif task == 2:
+            ret = write_page2(name)
+
+        if not ret:
+            faultFlag = True
+            continue
 
         print("开始提交")
         pyautogui.click(225, 100)
